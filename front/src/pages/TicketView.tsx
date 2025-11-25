@@ -1,0 +1,100 @@
+// src/pages/TicketView.tsx
+import { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { TicketService } from '../services/tickets';
+import { Box, Typography, TextField, Button, Paper } from '@mui/material';
+
+interface Msg {
+  id: number;
+  text: string;
+  timestamp: string;
+  type: 'in' | 'out';
+}
+
+export default function TicketView() {
+  const { id } = useParams();
+  const ticket_id = Number(id);
+
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [text, setText] = useState('');
+
+  const load = useCallback(async () => {
+    const data = await TicketService.getMessages(ticket_id);
+
+    const merged: Msg[] = [
+      ...data.messages_in.map(
+        (m): Msg => ({
+          id: m.id,
+          text: m.text,
+          timestamp: m.timestamp,
+          type: 'in',
+        }),
+      ),
+      ...data.messages_out.map(
+        (m): Msg => ({
+          id: m.id,
+          text: m.text,
+          timestamp: m.timestamp,
+          type: 'out',
+        }),
+      ),
+    ];
+
+    merged.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+    setMessages(merged);
+  }, [ticket_id]);
+  useEffect(() => {
+    Promise.resolve().then(() => load());
+  }, [load]);
+
+  async function send() {
+    await TicketService.reply(ticket_id, text);
+    setText('');
+    load();
+  }
+
+  async function close() {
+    await TicketService.close(ticket_id);
+    history.back();
+  }
+
+  return (
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h5" mb={2}>
+        Тикет #{ticket_id}
+      </Typography>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+        {messages.map((m) => (
+          <Box
+            key={`${m.type}-${m.id}`}
+            sx={{
+              alignSelf: m.type === 'in' ? 'flex-end' : 'flex-start',
+              maxWidth: '70%',
+            }}>
+            <Paper
+              sx={{
+                p: 1,
+                backgroundColor: m.type === 'in' ? 'success.dark' : 'primary.dark',
+                color: '#fff',
+              }}>
+              {m.text}
+            </Paper>
+          </Box>
+        ))}
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <TextField value={text} onChange={(e) => setText(e.target.value)} label="Ответ" fullWidth />
+        <Button variant="contained" onClick={send}>
+          Отправить
+        </Button>
+      </Box>
+
+      <Button variant="contained" color="error" sx={{ mt: 2 }} onClick={close}>
+        Закрыть тикет
+      </Button>
+    </Box>
+  );
+}
