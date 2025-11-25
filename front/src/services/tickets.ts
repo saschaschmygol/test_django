@@ -2,12 +2,12 @@ import api, { type TicketMessagesResponse } from "./api";
 
 export const TicketService = {
   async getMyTickets() {
-    const res = await api.post("/api/operator/tickets_user/");
+    const res = await api.get("/api/operator/tickets_user/");
     return res.data;
   },
 
   async getOpenTickets() {
-    const res = await api.post("/api/operator/open_ticket/");
+    const res = await api.get("/api/operator/open_ticket/");
     return res.data;
   },
 
