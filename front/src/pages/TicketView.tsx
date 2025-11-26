@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TicketService } from '../services/tickets';
 import { Box, Typography, TextField, Button, Paper } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 
 interface RawMsg {
   id: number;
@@ -22,6 +23,9 @@ interface Msg {
   type: 'in' | 'out';
 }
 export default function TicketView() {
+  const [params] = useSearchParams();
+  const readonly = params.get('view') === 'readonly';
+
   const navigate = useNavigate();
   const { id } = useParams();
   const ticket_id = Number(id);
@@ -99,17 +103,24 @@ export default function TicketView() {
           </Box>
         ))}
       </Box>
-
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <TextField value={text} onChange={(e) => setText(e.target.value)} label="Ответ" fullWidth />
-        <Button variant="contained" onClick={send}>
-          Отправить
+      {!readonly && (
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <TextField
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            label="Ответ"
+            fullWidth
+          />
+          <Button variant="contained" onClick={send}>
+            Отправить
+          </Button>
+        </Box>
+      )}
+      {!readonly && (
+        <Button variant="contained" color="error" sx={{ mt: 2 }} onClick={close}>
+          Закрыть тикет
         </Button>
-      </Box>
-
-      <Button variant="contained" color="error" sx={{ mt: 2 }} onClick={close}>
-        Закрыть тикет
-      </Button>
+      )}
     </Box>
   );
 }

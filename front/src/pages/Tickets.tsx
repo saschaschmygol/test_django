@@ -136,6 +136,12 @@ export default function Tickets() {
                   onClick={() => take(t.id)}>
                   Взять тикет
                 </Button>
+                <Button
+                  variant="outlined"
+                  sx={{ color: '#fff', borderColor: '#fff' }}
+                  onClick={() => navigate(`/ticket/${t.id}?view=readonly`)}>
+                  Просмотр
+                </Button>
               </CardContent>
             </Card>
           ))}
