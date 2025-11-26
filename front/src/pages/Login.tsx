@@ -1,54 +1,50 @@
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper } from '@mui/material';
-import { AuthService } from '../services/auth';
+import { Box, Button, TextField, Typography, Card, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    console.log('login try', username, password);
-    await AuthService.login(username, password);
-    navigate('/');
+  async function submit() {
+    const r = await api.post('/auth/login/', { username, password });
+    localStorage.setItem('access', r.data.access);
+    localStorage.setItem('refresh', r.data.refresh);
+    navigate('/tickets');
   }
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'background.default',
-      }}>
-      <Paper sx={{ p: 4, minWidth: 300 }}>
-        <Typography variant="h5" mb={2} align="center">
-          Авторизация
-        </Typography>
-        <form onSubmit={submit}>
+    <Box height="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Card sx={{ width: 350 }}>
+        <CardContent>
+          <Typography variant="h5" mb={2} textAlign="center">
+            Авторизация
+          </Typography>
+
           <TextField
+            fullWidth
             label="Логин"
             value={username}
+            sx={{ mb: 2 }}
             onChange={(e) => setUsername(e.target.value)}
-            fullWidth
-            margin="normal"
           />
+
           <TextField
-            label="Пароль"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             fullWidth
-            margin="normal"
+            type="password"
+            label="Пароль"
+            value={password}
+            sx={{ mb: 2 }}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+
+          <Button fullWidth variant="contained" onClick={submit}>
             Войти
           </Button>
-        </form>
-      </Paper>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

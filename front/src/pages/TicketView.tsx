@@ -1,8 +1,19 @@
 // src/pages/TicketView.tsx
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { TicketService } from '../services/tickets';
 import { Box, Typography, TextField, Button, Paper } from '@mui/material';
+
+interface RawMsg {
+  id: number;
+  text: string;
+  timestamp: string;
+}
+
+interface TicketMessagesResponse {
+  messages_in: RawMsg[];
+  messages_out: RawMsg[];
+}
 
 interface Msg {
   id: number;
@@ -10,8 +21,8 @@ interface Msg {
   timestamp: string;
   type: 'in' | 'out';
 }
-
 export default function TicketView() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const ticket_id = Number(id);
 
@@ -19,11 +30,11 @@ export default function TicketView() {
   const [text, setText] = useState('');
 
   const load = useCallback(async () => {
-    const data = await TicketService.getMessages(ticket_id);
+    const data: TicketMessagesResponse = await TicketService.getMessages(ticket_id);
 
     const merged: Msg[] = [
       ...data.messages_in.map(
-        (m): Msg => ({
+        (m: RawMsg): Msg => ({
           id: m.id,
           text: m.text,
           timestamp: m.timestamp,
@@ -31,7 +42,7 @@ export default function TicketView() {
         }),
       ),
       ...data.messages_out.map(
-        (m): Msg => ({
+        (m: RawMsg): Msg => ({
           id: m.id,
           text: m.text,
           timestamp: m.timestamp,
@@ -44,6 +55,7 @@ export default function TicketView() {
 
     setMessages(merged);
   }, [ticket_id]);
+
   useEffect(() => {
     Promise.resolve().then(() => load());
   }, [load]);
@@ -61,6 +73,9 @@ export default function TicketView() {
 
   return (
     <Box sx={{ p: 4 }}>
+      <Button variant="outlined" sx={{ mb: 2 }} onClick={() => navigate('/')}>
+        ← Назад
+      </Button>
       <Typography variant="h5" mb={2}>
         Тикет #{ticket_id}
       </Typography>
