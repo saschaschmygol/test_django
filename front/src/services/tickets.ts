@@ -1,4 +1,5 @@
-import api, { type TicketMessagesResponse } from "./api";
+import api from "./api";
+import type { TicketMessagesResponse } from "./api";
 
 export const TicketService = {
   async getMyTickets() {

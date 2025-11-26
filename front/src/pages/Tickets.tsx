@@ -29,8 +29,8 @@ export default function Tickets() {
   const navigate = useNavigate();
 
   const reloadTickets = useCallback(async () => {
-    const myR = await api.post('/operator/tickets_user/');
-    const openR = await api.post('/operator/open_ticket/');
+    const myR = await api.get('/operator/tickets_user/');
+    const openR = await api.get('/operator/open_ticket/');
 
     const sortFn = (a: Ticket, b: Ticket) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
@@ -45,9 +45,7 @@ export default function Tickets() {
   }, [reloadTickets]);
 
   async function take(ticket_id: number) {
-    await api.post('/operator/ticket_assign/', { ticket_id });
-
-    // после назначения — перезагружаем данные
+    await api.get('/operator/ticket_assign/', { params: { ticket_id } });
     await reloadTickets();
   }
 

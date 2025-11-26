@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, Card, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { AuthService } from '../services/auth';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -9,9 +9,8 @@ export default function Login() {
   const navigate = useNavigate();
 
   async function submit() {
-    const r = await api.post('/auth/login/', { username, password });
-    localStorage.setItem('access', r.data.access);
-    localStorage.setItem('refresh', r.data.refresh);
+    console.log('login try', username, password);
+    await AuthService.login(username, password);
     navigate('/');
   }
 
@@ -40,7 +39,7 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Button fullWidth variant="contained" onClick={submit}>
+          <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={submit}>
             Войти
           </Button>
         </CardContent>
