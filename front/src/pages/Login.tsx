@@ -12,7 +12,7 @@ export default function Login() {
     const r = await api.post('/auth/login/', { username, password });
     localStorage.setItem('access', r.data.access);
     localStorage.setItem('refresh', r.data.refresh);
-    navigate('/tickets');
+    navigate('/');
   }
 
   return (
